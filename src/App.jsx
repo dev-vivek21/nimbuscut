@@ -73,7 +73,7 @@ export default function App() {
   }, [resetRemoval]);
 
   // Background selector state
-  const [bgConfig, setBgConfig] = useState({ type: 'color', value: '#ffffff' });
+  const [bgConfig, setBgConfig] = useState({ type: 'transparent' });
 
   // Clean up object URLs on component unmount
   useEffect(() => {

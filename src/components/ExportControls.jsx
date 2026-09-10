@@ -66,9 +66,9 @@ export default function ExportControls({
         resolutionPreset === 'original' && format === 'png'
           ? targetBlob
           : await resizeImage(processedUrl || targetBlob, targetWidth, format);
-      // Composite with background if selected
+      // Composite with background only if user selected a color/image
       let finalBlob = resizedBlob;
-      if (bgConfig && bgConfig.type) {
+      if (bgConfig && bgConfig.type !== 'transparent' && bgConfig.type) {
         const canvas = document.createElement('canvas');
         canvas.width = currentExportSize.width;
         canvas.height = currentExportSize.height;
