@@ -9,6 +9,10 @@
     "preview": "vite preview",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
+  "allowScripts": {
+    "esbuild": true,
+    "protobufjs": true
+  },
   "dependencies": {
     "@imgly/background-removal": "^1.0.0",
     "file-saver": "^2.0.5",
