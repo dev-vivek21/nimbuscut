@@ -1,6 +1,5 @@
 // src/hooks/useBackgroundRemoval.js
 import { useState, useCallback, useRef } from 'react';
-import { removeBackground } from '@imgly/background-removal';
 
 /**
  * Hook to manage local AI background removal via @imgly/background-removal.
@@ -119,6 +118,7 @@ export function useBackgroundRemoval() {
       setStage('processing');
       setStatusMessage('Extracting subject...');
 
+      const { removeBackground } = await import('@imgly/background-removal');
       const outputBlob = await removeBackground(workingBlob, config);
       const objectUrl = URL.createObjectURL(outputBlob);
       activeUrlRef.current = objectUrl;

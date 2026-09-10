@@ -65,13 +65,13 @@ export default function UploadZone({ onImageSelected }) {
 
         {/* Dynamic Titles for Desktop vs Mobile */}
         <div className="space-y-2">
-          <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
             <span className="hidden sm:inline">Drag & drop your image here, or </span>
             <span className="sm:hidden">Tap to </span>
             <span className="text-brand-500 dark:text-brand-400 underline decoration-brand-500/30 decoration-2 underline-offset-4">
               browse files
             </span>
-          </h3>
+          </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400">
             Supports PNG, JPEG, WebP • Max 25MB
           </p>

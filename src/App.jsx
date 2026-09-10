@@ -1,10 +1,11 @@
-import React, { useState, useReducer, useEffect, useCallback } from 'react';
+import React, { useState, useReducer, useEffect, useCallback, lazy, Suspense } from 'react';
 import UploadZone from './components/UploadZone.jsx';
-import ProcessingView from './components/ProcessingView.jsx';
-import BeforeAfterSlider from './components/BeforeAfterSlider.jsx';
-import ExportControls from './components/ExportControls.jsx';
-import BackgroundSelector from './components/BackgroundSelector.jsx';
 import { useBackgroundRemoval } from './hooks/useBackgroundRemoval.js';
+
+const ProcessingView = lazy(() => import('./components/ProcessingView.jsx'));
+const BeforeAfterSlider = lazy(() => import('./components/BeforeAfterSlider.jsx'));
+const ExportControls = lazy(() => import('./components/ExportControls.jsx'));
+const BackgroundSelector = lazy(() => import('./components/BackgroundSelector.jsx'));
 
 const initialAppState = {
   originalFile: null,
@@ -199,41 +200,45 @@ export default function App() {
 
         {/* Processing State */}
         {isProcessing && (
-          <ProcessingView
-            originalPreviewUrl={appState.originalUrl}
-            stage={stage}
-            modelProgress={modelProgress}
-            inferenceProgress={inferenceProgress}
-            statusMessage={statusMessage}
-            error={error}
-            onRetry={retry}
-            onCancel={handleFullReset}
-          />
+          <Suspense fallback={null}>
+            <ProcessingView
+              originalPreviewUrl={appState.originalUrl}
+              stage={stage}
+              modelProgress={modelProgress}
+              inferenceProgress={inferenceProgress}
+              statusMessage={statusMessage}
+              error={error}
+              onRetry={retry}
+              onCancel={handleFullReset}
+            />
+          </Suspense>
         )}
 
         {/* Results State */}
         {isDone && (
-          <div className="space-y-8 animate-fade-in">
-            <div className="flex flex-col md:flex-row gap-4 items-start">
-              <div className="flex-1">
-                <BeforeAfterSlider
-                  original={appState.originalUrl}
-                  processed={resultUrl}
-                  background={bgConfig}
-                />
+          <Suspense fallback={null}>
+            <div className="space-y-8 animate-fade-in">
+              <div className="flex flex-col md:flex-row gap-4 items-start">
+                <div className="flex-1">
+                  <BeforeAfterSlider
+                    original={appState.originalUrl}
+                    processed={resultUrl}
+                    background={bgConfig}
+                  />
+                </div>
+                <div className="w-full md:w-48 lg:w-56">
+                  <BackgroundSelector onChange={setBgConfig} />
+                </div>
               </div>
-              <div className="w-full md:w-48 lg:w-56">
-                <BackgroundSelector onChange={setBgConfig} />
-              </div>
+              <ExportControls
+                originalFile={appState.originalFile}
+                processedUrl={resultUrl}
+                processedBlob={resultBlob}
+                onReset={handleFullReset}
+                bgConfig={bgConfig}
+              />
             </div>
-            <ExportControls
-              originalFile={appState.originalFile}
-              processedUrl={resultUrl}
-              processedBlob={resultBlob}
-              onReset={handleFullReset}
-              bgConfig={bgConfig}
-            />
-          </div>
+          </Suspense>
         )}
       </main>
 

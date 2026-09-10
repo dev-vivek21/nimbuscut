@@ -20,6 +20,15 @@ export default defineConfig({
   build: {
     target: 'esnext',
     assetsInlineLimit: 0,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/@imgly') || id.includes('node_modules/onnxruntime')) {
+            return 'imgly-engine';
+          }
+        },
+      },
+    },
   },
   optimizeDeps: {
     exclude: ['@imgly/background-removal'],
