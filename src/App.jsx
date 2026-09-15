@@ -6,6 +6,7 @@ const ProcessingView = lazy(() => import('./components/ProcessingView.jsx'));
 const BeforeAfterSlider = lazy(() => import('./components/BeforeAfterSlider.jsx'));
 const ExportControls = lazy(() => import('./components/ExportControls.jsx'));
 const BackgroundSelector = lazy(() => import('./components/BackgroundSelector.jsx'));
+const WatermarkWorkspace = lazy(() => import('./watermark/WatermarkWorkspace.jsx'));
 
 const initialAppState = {
   originalFile: null,
@@ -34,6 +35,7 @@ function appReducer(state, action) {
 
 export default function App() {
   const [appState, dispatch] = useReducer(appReducer, initialAppState);
+  const [activeMode, setActiveMode] = useState('image'); // 'image' | 'video'
   const [isDark, setIsDark] = useState(() => {
     return document.documentElement.classList.contains('dark');
   });
@@ -115,8 +117,41 @@ export default function App() {
             </div>
           </div>
 
+          {/* Mode Switcher: Image Background | Video Watermark */}
+          <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-inner">
+            <button
+              onClick={() => setActiveMode('image')}
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${
+                activeMode === 'image'
+                  ? 'bg-white dark:bg-slate-800 text-brand-600 dark:text-brand-400 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
+              }`}
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              Image Background
+            </button>
+            <button
+              onClick={() => setActiveMode('video')}
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${
+                activeMode === 'video'
+                  ? 'bg-white dark:bg-slate-800 text-brand-600 dark:text-brand-400 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
+              }`}
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              Video Watermark
+              <span className="px-1.5 py-0.2 rounded text-[9px] bg-brand-500/15 text-brand-600 dark:text-brand-400 font-extrabold uppercase">
+                New
+              </span>
+            </button>
+          </div>
+
           <div className="flex items-center gap-3">
-            {appState.originalFile && (
+            {activeMode === 'image' && appState.originalFile && (
               <button
                 onClick={handleFullReset}
                 className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-850 transition text-slate-600 dark:text-slate-300"
@@ -147,98 +182,106 @@ export default function App() {
 
       {/* Main Container */}
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col justify-center">
-        {!appState.originalFile && (
-          <div className="space-y-8 animate-fade-in text-center">
-            <div className="space-y-3 max-w-2xl mx-auto">
-              <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-                Remove image backgrounds{' '}
-                <span className="bg-gradient-to-r from-brand-500 to-violet-500 bg-clip-text text-transparent">
-                  instantly & privately
-                </span>
-              </h1>
-              <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base max-w-lg mx-auto">
-                Powered by in-browser neural network inference (WASM + WebGPU). No backend server, zero data leakage.
-              </p>
-            </div>
-
-            <UploadZone onImageSelected={handleImageSelected} />
-
-            {/* Feature Highlights */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto pt-6 text-left">
-              <div className="glass-card p-4 rounded-xl space-y-1.5 border border-slate-200/70 dark:border-slate-800/70">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold">
-                  🔒
-                </div>
-                <div className="font-semibold text-sm text-slate-900 dark:text-white">Zero Server Uploads</div>
-                <div className="text-xs text-slate-500 dark:text-slate-400">
-                  Your photos never touch a cloud server. 100% computed right in your web browser.
-                </div>
-              </div>
-
-              <div className="glass-card p-4 rounded-xl space-y-1.5 border border-slate-200/70 dark:border-slate-800/70">
-                <div className="w-8 h-8 rounded-lg bg-brand-500/10 text-brand-500 flex items-center justify-center font-bold">
-                  ⚡
-                </div>
-                <div className="font-semibold text-sm text-slate-900 dark:text-white">WebGPU & WASM</div>
-                <div className="text-xs text-slate-500 dark:text-slate-400">
-                  High-speed neural matting utilizing your local GPU or multi-core WASM engine.
-                </div>
-              </div>
-
-              <div className="glass-card p-4 rounded-xl space-y-1.5 border border-slate-200/70 dark:border-slate-800/70">
-                <div className="w-8 h-8 rounded-lg bg-violet-500/10 text-violet-500 flex items-center justify-center font-bold">
-                  🎯
-                </div>
-                <div className="font-semibold text-sm text-slate-900 dark:text-white">Flexible Export</div>
-                <div className="text-xs text-slate-500 dark:text-slate-400">
-                  Download at Original resolution, 1080p, 720p, or custom width in PNG, WebP, or JPEG.
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Processing State */}
-        {isProcessing && (
-          <Suspense fallback={null}>
-            <ProcessingView
-              originalPreviewUrl={appState.originalUrl}
-              stage={stage}
-              modelProgress={modelProgress}
-              inferenceProgress={inferenceProgress}
-              statusMessage={statusMessage}
-              error={error}
-              onRetry={retry}
-              onCancel={handleFullReset}
-            />
+        {activeMode === 'video' ? (
+          <Suspense fallback={<div className="text-center py-16 text-slate-400">Loading Video Watermark Engine...</div>}>
+            <WatermarkWorkspace />
           </Suspense>
-        )}
+        ) : (
+          <>
+            {!appState.originalFile && (
+              <div className="space-y-8 animate-fade-in text-center">
+                <div className="space-y-3 max-w-2xl mx-auto">
+                  <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                    Remove image backgrounds{' '}
+                    <span className="bg-gradient-to-r from-brand-500 to-violet-500 bg-clip-text text-transparent">
+                      instantly & privately
+                    </span>
+                  </h1>
+                  <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base max-w-lg mx-auto">
+                    Powered by in-browser neural network inference (WASM + WebGPU). No backend server, zero data leakage.
+                  </p>
+                </div>
 
-        {/* Results State */}
-        {isDone && (
-          <Suspense fallback={null}>
-            <div className="space-y-8 animate-fade-in">
-              <div className="flex flex-col md:flex-row gap-4 items-start">
-                <div className="flex-1">
-                  <BeforeAfterSlider
-                    original={appState.originalUrl}
-                    processed={resultUrl}
-                    background={bgConfig}
+                <UploadZone onImageSelected={handleImageSelected} />
+
+                {/* Feature Highlights */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto pt-6 text-left">
+                  <div className="glass-card p-4 rounded-xl space-y-1.5 border border-slate-200/70 dark:border-slate-800/70">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold">
+                      🔒
+                    </div>
+                    <div className="font-semibold text-sm text-slate-900 dark:text-white">Zero Server Uploads</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">
+                      Your photos never touch a cloud server. 100% computed right in your web browser.
+                    </div>
+                  </div>
+
+                  <div className="glass-card p-4 rounded-xl space-y-1.5 border border-slate-200/70 dark:border-slate-800/70">
+                    <div className="w-8 h-8 rounded-lg bg-brand-500/10 text-brand-500 flex items-center justify-center font-bold">
+                      ⚡
+                    </div>
+                    <div className="font-semibold text-sm text-slate-900 dark:text-white">WebGPU & WASM</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">
+                      High-speed neural matting utilizing your local GPU or multi-core WASM engine.
+                    </div>
+                  </div>
+
+                  <div className="glass-card p-4 rounded-xl space-y-1.5 border border-slate-200/70 dark:border-slate-800/70">
+                    <div className="w-8 h-8 rounded-lg bg-violet-500/10 text-violet-500 flex items-center justify-center font-bold">
+                      🎯
+                    </div>
+                    <div className="font-semibold text-sm text-slate-900 dark:text-white">Flexible Export</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">
+                      Download at Original resolution, 1080p, 720p, or custom width in PNG, WebP, or JPEG.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Processing State */}
+            {isProcessing && (
+              <Suspense fallback={null}>
+                <ProcessingView
+                  originalPreviewUrl={appState.originalUrl}
+                  stage={stage}
+                  modelProgress={modelProgress}
+                  inferenceProgress={inferenceProgress}
+                  statusMessage={statusMessage}
+                  error={error}
+                  onRetry={retry}
+                  onCancel={handleFullReset}
+                />
+              </Suspense>
+            )}
+
+            {/* Results State */}
+            {isDone && (
+              <Suspense fallback={null}>
+                <div className="space-y-8 animate-fade-in">
+                  <div className="flex flex-col md:flex-row gap-4 items-start">
+                    <div className="flex-1">
+                      <BeforeAfterSlider
+                        original={appState.originalUrl}
+                        processed={resultUrl}
+                        background={bgConfig}
+                      />
+                    </div>
+                    <div className="w-full md:w-48 lg:w-56">
+                      <BackgroundSelector onChange={setBgConfig} />
+                    </div>
+                  </div>
+                  <ExportControls
+                    originalFile={appState.originalFile}
+                    processedUrl={resultUrl}
+                    processedBlob={resultBlob}
+                    onReset={handleFullReset}
+                    bgConfig={bgConfig}
                   />
                 </div>
-                <div className="w-full md:w-48 lg:w-56">
-                  <BackgroundSelector onChange={setBgConfig} />
-                </div>
-              </div>
-              <ExportControls
-                originalFile={appState.originalFile}
-                processedUrl={resultUrl}
-                processedBlob={resultBlob}
-                onReset={handleFullReset}
-                bgConfig={bgConfig}
-              />
-            </div>
-          </Suspense>
+              </Suspense>
+            )}
+          </>
         )}
       </main>
 

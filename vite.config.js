@@ -26,11 +26,14 @@ export default defineConfig({
           if (id.includes('node_modules/@imgly') || id.includes('node_modules/onnxruntime')) {
             return 'imgly-engine';
           }
+          if (id.includes('node_modules/@mediapipe')) {
+            return 'mediapipe-engine';
+          }
         },
       },
     },
   },
   optimizeDeps: {
-    exclude: ['@imgly/background-removal'],
+    exclude: ['@imgly/background-removal', '@mediapipe/tasks-vision'],
   },
 });
